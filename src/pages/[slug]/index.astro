@@ -1,6 +1,7 @@
 ---
 import Layout from '../../layouts/Layout.astro'
-import { sanityClient } from '../../sanity.js'
+import { sanityClient, urlFor } from '../../sanity.js'
+import { Image } from 'astro:assets'
 
 export async function getStaticPaths() {
   const pages = await sanityClient.fetch(`
@@ -20,6 +21,7 @@ const page = await sanityClient.fetch(
   `
   *[_type == "page" && slug.current == $slug][0]{
     title,
+    heroImage,
     content,
     seo {
       metaTitle,
@@ -35,6 +37,17 @@ const page = await sanityClient.fetch(
   metaTitle={page?.seo?.metaTitle}
   metaDescription={page?.seo?.metaDescription}
 >
+{page?.heroImage && (
+  <Image
+  src={urlFor(page.heroImage).width(1200).url()}
+  alt={page.title}
+  width={1200}
+  height={600}
+  loading="lazy"
+  decoding="async"
+  style="margin-bottom: 24px;"
+/>
+)}
   {page ? (
     <>
       <h1>{page.title}</h1>

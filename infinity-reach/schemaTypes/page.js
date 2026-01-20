@@ -10,6 +10,14 @@ export default {
             validation: (Rule) => Rule.required(),
         },
         {
+            name: 'heroImage',
+            type: 'image',
+            title: 'Hero Image',
+            options: {
+                hotspot: true,
+            },
+        },
+        {
             name: 'slug',
             title: 'Slug',
             type: 'slug',
