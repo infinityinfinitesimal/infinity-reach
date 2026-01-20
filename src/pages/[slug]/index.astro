@@ -1,0 +1,49 @@
+---
+import Layout from '../../layouts/Layout.astro'
+import { sanityClient } from '../../sanity.js'
+
+export async function getStaticPaths() {
+  const pages = await sanityClient.fetch(`
+    *[_type == "page" && defined(slug.current)]{
+      "slug": slug.current
+    }
+  `)
+
+  return pages.map((page) => ({
+    params: { slug: page.slug },
+  }))
+}
+
+const { slug } = Astro.params
+
+const page = await sanityClient.fetch(
+  `
+  *[_type == "page" && slug.current == $slug][0]{
+    title,
+    content,
+    seo {
+      metaTitle,
+      metaDescription
+    }
+  }
+  `,
+  { slug }
+)
+---
+<Layout
+  title={page?.title || 'Not Found'}
+  metaTitle={page?.seo?.metaTitle}
+  metaDescription={page?.seo?.metaDescription}
+>
+  {page ? (
+    <>
+      <h1>{page.title}</h1>
+
+      {page.content?.map((block) =>
+        block._type === 'block' ? <p>{block.children[0]?.text}</p> : null
+      )}
+    </>
+  ) : (
+    <p>Page not found</p>
+  )}
+</Layout>
